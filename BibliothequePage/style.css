@@ -1,0 +1,355 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+
+
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: Outfit;
+}
+p{
+    padding: 0;
+}
+a {
+    text-decoration: none;
+}
+
+body {
+    background-color: #202020;
+}
+
+
+::-webkit-scrollbar {
+    width: 12px; /* Ancho de la barra de scroll */
+}
+
+::-webkit-scrollbar-track {
+    background: transparent; /* Fondo transparente */
+}
+
+::-webkit-scrollbar-thumb {
+    background: white; /* Barra del scroll blanca */
+    border-radius: 6px; /* Bordes redondeados */
+    border: 3px solid transparent; /* Borde transparente para que no se vea el fondo */
+    background-clip: content-box; /* Asegura que el fondo no se vea detrás del thumb */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #f0f0f0; /* Cambia el color al pasar el mouse */
+}
+
+img:failed {
+    display: none;
+    background-image: url('224595.png');
+}
+
+
+.libNav {
+    padding: 10px;
+    background-color: #2b2b2b;
+    color: aliceblue;
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+
+
+    .libBrand {
+        color: cornflowerblue;
+        font-family: Outfit;
+        font-weight: 1000;
+        font-size: 40px;
+
+        padding-left: 30px;
+        padding-right: 60px;
+        justify-self: center;
+        align-self: center;
+    }
+}
+
+.libSection {
+    padding: 20px 15px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    background-color: transparent;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    color: #70787f;
+
+    &:hover {
+        background-color: #545454;
+    }
+
+    &.active {
+        color: aliceblue;
+    }
+}
+
+
+
+
+.libCateg {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    color: aliceblue;
+}
+
+
+.libNavSearch {
+    display: flex;
+    flex-direction: row;
+    padding: 5px;
+    gap: 10px;
+
+    align-content: center;
+
+    position: absolute;
+    right: 40px;
+    top: 5px;
+
+    select {
+        padding: 5px;
+
+        border: none;
+        border-radius: 5px;
+        background-color: #2b2b2b;
+        color: aliceblue;
+
+        font-size: 20px;
+        &:focus {
+            border: none;
+        }
+
+        &:hover{
+            background-color: #434343;
+        }
+    }
+}
+
+
+
+.libDashboard {
+    padding: 50px 30px 30px 80px;
+    display: flex;
+    flex-direction: row;
+
+    
+    align-content: stretch;
+}
+
+
+.libClasses {
+    background-color: #2b2b2b;
+    border: solid;
+    border-color: #434343;
+    border-width: 1px;
+    border-radius: 10px;
+    min-width: 200px;
+    max-height: 800px;
+    flex-grow: 4;
+    overflow-y: scroll;
+    gap: 8px;
+
+    padding: 25px;
+    padding-left: 35px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+
+    .libBookCateg{
+        border: none;
+        cursor: pointer;
+
+        background-color: transparent;
+        color: #70787f;
+        font-family: Outfit;
+        font-size: 18px;
+
+        &.active {
+            padding: 2px;
+            font-size: 22px;
+            color: aliceblue;
+        }
+    }
+
+    
+}
+
+.libSources {
+    padding-inline: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: scroll;
+    max-height: 100%;
+
+    flex-grow: 8;
+}
+
+.sortSources {
+    background-color: #2b2b2b;
+    border: solid;
+    border-radius: 10px;
+    border-color: #434343;
+    &:hover{
+        background-color: #434343;
+    }
+
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+    padding: 10px;
+    font-size: 25px;
+
+    cursor: pointer;
+}
+
+.libSHead {
+    display: flex;
+    flex-direction: row;
+
+    padding-inline: 10px;
+    gap: 5px;
+    align-items: center;
+    justify-content: space-between;
+
+    color: aliceblue;
+}
+
+.libList {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-inline: 60px;
+
+    gap: 20px;
+    overflow-y: scroll;
+    max-height: 900px;
+    
+
+    flex-wrap: wrap;
+}
+
+.libCard {
+    display: flex;
+    flex-direction: column;
+
+    border-radius: 10px;
+    width: 250px;
+    height: 340px;
+    position: relative;
+
+    cursor: pointer;
+
+    div {
+        visibility: hidden;
+    }
+    &:hover {
+        div {
+            visibility: visible;
+        }
+    }
+
+    i {
+        position: absolute;
+        bottom: 0px;
+        right: 0px;
+        padding: 20px;
+
+        color: aliceblue;
+        font-size: 25px;
+    }
+
+    .disponibilidad {
+        position: absolute;
+        bottom: 0px;
+        left: 0px;
+        padding: 20px;
+        font-size: 15px;
+    }
+
+}
+
+.libSourceInfo {
+    border-radius: 8px;
+    padding: 10px;
+    position: relative;
+    bottom: 0px;
+
+    background-color: #2b2b2b;
+    color: aliceblue;
+}
+
+.libSeeBook{
+    display: flex;
+    flex-direction: column;
+    background-color: #171717;
+    flex-grow: 8;
+    max-width: 1000px;
+    border-radius: 10px;
+    padding-top: 40px;
+    padding-inline: 30px;
+    
+
+    color: aliceblue;
+
+    .seeInfo{
+        padding-inline: 30px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    p{
+        color: #70787f;
+    }
+
+    .reserveButton {
+        text-align: center;
+        align-self: center;
+        justify-self: center;
+
+        cursor: pointer;
+        &:hover{
+            background-color: #aecd80;
+        }
+
+        border: none;
+        background-color: #6f8e42;
+        color: aliceblue;
+        border-radius: 10px;
+        padding-inline: 15px;
+        padding-top: 5px;
+        padding-bottom: 5px;
+
+        font-size: 18px;
+
+        &.notAvailable{
+            background-color: #958481;
+            color: rgb(36, 38, 39);
+        }
+    }
+
+    
+}
+
+
+.libImgSee {
+    align-self: center;
+    border-radius: 10px;
+    width: 350px;
+    height: 440px;
+}
+

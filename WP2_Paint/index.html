@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paint.js</title>
+    <style>
+        *, *::before, *::after{
+            box-sizing: border-box;
+        }
+
+        body{
+            font-family: 'Arial', sans-serif;
+            background:  #222;
+            padding: 16px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        h1{
+            color: #fce300;
+            font-size: 12px;
+            font-weight: 600;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            
+            img {
+                width: 16px;
+                height: auto;
+            }
+        }
+
+        canvas{
+            background-color: white;
+        }
+
+        header{
+            background-color: silver;
+            padding: 2px;
+            grid-area: header;
+
+            button {
+                border: 0;
+                background: transparent;
+
+                &:hover{
+                    box-shadow:
+                    1px 1px black,
+                    inset -1px -1px gray
+                    inset 1px 1px white;
+                }
+            }
+        }
+
+        footer{
+            grid-area: footer;
+            background-color: silver;
+            padding: 4px;
+        }
+
+        main{
+            grid-area: main;
+            padding: 16px;
+        }
+
+        #container{
+            border: 1px solid #808080;
+            display: grid;
+            grid-template-areas: 
+                "header header header"
+                "aside main main"
+                "footer footer footer";
+        }
+
+        aside {
+            background: silver;
+            width: 52px;
+            grid-area: aside;
+            padding-top: 2px;
+            
+            nav{
+                display: flex;
+                flex-wrap: wrap;
+                gap: 1px;
+                justify-content: center;
+            }
+
+            button {
+                width: 24px;
+                height: 24px;
+
+                background: #bdbdbd url('./icons/draw.png')  no-repeat  center;
+
+                border: 2px solid #eee;
+                border-right-color: #000;
+                border-bottom-color: #000;
+
+                &.active{
+                    background-color: #eee;
+                    border-color: #000;
+                    border-right-color: #eee;
+                    border-bottom-color: #eee;
+
+                    image-rendering: pixelated;
+                }
+            }
+
+            #erase-btn {
+                background-image: url('./icons/erase.png');
+              }
+          
+              #rectangle-btn {
+                background-image: url('./icons/rectangle.png');
+              }
+          
+              #ellipse-btn {
+                background-image: url('./icons/ellipse.png');
+              }
+          
+              #picker-btn {
+                background-image: url('./icons/picker.png');
+              }
+          
+              #clear-btn {
+                background-image: url('./icons/trash.png');
+                background-size: 18px;
+              }
+          
+              #save-btn {
+                background-image: url('./icons/save.png');
+              }
+        }
+
+
+
+
+
+    </style>
+    <script type="module">
+        const $ = el => document.querySelector(el)
+        const $$ = el => document.querySelectorAll(el)
+
+
+        const MODES = {
+            DRAW: 'draw',
+            RECTANGLE: 'rectangle',
+            ELLIPSE: 'ellipse',
+            PICKER: 'picker',
+            ERASE: 'erase'
+        }
+        //ELEMENTS
+
+        const $canvas = $('#canvas')
+        const $colorPicker = $('#COLOR-PICKER')
+        const $clearBtn = $('#clear-btn')
+        const $drawBtn = $('#draw-btn')
+        const $rectangleBtn = $('#rectangle-btn')
+        const $ellipseBtn = $('#ellipse-btn')
+        const $eraseBtn = $('#erase-btn')
+        const $pickerBtn = $('#picker-btn')
+
+        const ctx = $canvas.getContext('2d')
+
+        let isDrawing = false
+        let [startX,startY] = [null,null]
+        let [lastX,lastY] = [0,0]
+        let imageData
+        let prevMode = MODES.DRAW
+        let isShiftPressed = false
+
+        let mode = MODES.DRAW // erase, rectangle, ellipsis, picker
+        
+        //EVENTS
+
+        $canvas.addEventListener('mousedown', startDrawing)
+        $canvas.addEventListener('mousemove', draw)
+        $canvas.addEventListener('mouseup', stopDrawing)
+        $canvas.addEventListener('mouseLeave', stopDrawing)
+        $clearBtn.addEventListener('click', clearCanvas)
+        $drawBtn.addEventListener('click', () => {
+            setMode(MODES.DRAW)
+        })
+        $rectangleBtn.addEventListener('click', () => {
+            setMode(MODES.RECTANGLE)
+        })
+        $ellipseBtn.addEventListener('click', () => {
+            setMode(MODES.ELLIPSE)
+        })
+        $eraseBtn.addEventListener('click', () => {
+            setMode(MODES.ERASE)
+        })
+        $pickerBtn.addEventListener('click',() => {
+            setMode(MODES.PICKER)
+        })
+        
+
+        $colorPicker.addEventListener('change', handleChangeColor)
+        document.addEventListener('keydown', handleKeyDown)
+        document.addEventListener('keyup', handleKeyUp)
+
+        //METHODS
+        async function setMode(newmode){
+            mode = newmode
+            if (newmode != MODES.PICKER) prevMode = newmode
+            $('button.active')?.classList.remove('active')
+
+            switch (newmode){
+                case MODES.DRAW:{
+                    $drawBtn.classList.add('active');
+                    canvas.style.curser = 'crosshair'
+                    ctx.lineWidth = 1;
+                    ctx.globalCompositeOperation = 'source-over'
+                    return
+                }
+                    
+                case MODES.RECTANGLE: {
+                    $rectangleBtn.classList.add('active');
+                    canvas.style.curser = 'nw-resize'
+                    ctx.globalCompositeOperation = 'source-over'
+                    ctx.lineWidth = 2;
+                    return
+                }
+                    
+                case MODES.ELLIPSE:{
+                    $ellipseBtn.classList.add('active');
+                    ctx.globalCompositeOperation = 'source-over'
+                    ctx.lineWidth = 2;
+                    return
+                }
+
+                case MODES.ERASE:{
+                    $eraseBtn.classList.add('active');
+                    canvas.style.cursor = 'url("./cursor/erase.png") 0 24'
+                    ctx.globalCompositeOperation = 'destination-out'
+                    ctx.lineWidth = 15
+                    return
+                }
+
+                case MODES.PICKER:{
+                    $pickerBtn.classList.add('active');
+                    const eyeDrop = new window.EyeDropper()
+
+                    try {
+                        const result = await eyeDrop.open()
+                        const {sRGBHex} = result
+                        ctx.strokeStyle = sRGBHex
+                        setMode(prevMode)
+                        $colorPicker.value = sRGBHex
+                    } catch (e){
+
+                    }
+                    
+                    
+                    return
+                }
+            }
+        }
+
+        function handleKeyDown({key}){
+            isShiftPressed = key === 'Shift'
+        }
+
+        function handleKeyUp({key}){
+            isShiftPressed = false
+        }
+
+
+        function startDrawing(event){
+            isDrawing = true
+
+
+            const {offsetX,offsetY} = event
+
+
+            ;[startX,startY] = [offsetX, offsetY]
+            ;[lastX, lastY] = [offsetX, offsetY]
+
+
+            imageData = ctx.getImageData(0,0, canvas.width, canvas.height )
+        }
+
+        function draw (event){
+            if (!isDrawing) return
+            const {offsetX,offsetY} = event
+
+
+            if (mode === MODES.DRAW || mode === MODES.ERASE){
+                
+                //Start a draw
+
+                ctx.beginPath()
+
+                //mover trazado
+                ctx.moveTo(lastX,lastY)
+
+                //dibujar una linea
+                ctx.lineTo(offsetX,offsetY)
+
+                ctx.stroke()
+
+                ;[lastX,lastY] = [offsetX,offsetY]
+            }
+            else if (mode === MODES.RECTANGLE){
+                ctx.putImageData(imageData,0,0)
+                let [width, height] = [offsetX-startX, offsetY-startY]
+                if (isShiftPressed){
+                    const sideLength = Math.min(Math.abs(width), Math.abs(height))
+
+                    width = (width > 0) ? sideLength : -sideLength
+                    height = (height > 0) ? sideLength : -sideLength
+                }
+
+                ctx.beginPath()
+                ctx.rect(startX, startY, width, height)
+                ctx.stroke()
+                
+                
+            }
+            else if (mode === MODES.ELLIPSE){
+                ctx.putImageData(imageData,0,0)
+                let [width, height] = [offsetX-startX, offsetY-startY]
+                if (isShiftPressed){
+                    const sideLength = Math.min(Math.abs(width), Math.abs(height))
+
+                    width = (width > 0) ? sideLength : -sideLength
+                    height = (height > 0) ? sideLength : -sideLength
+                }
+                ctx.beginPath()
+                ctx.ellipse(startX + width/2, startY + height/2,  Math.abs(width/2), Math.abs(height/2), 0, 0, 3.14159265*2)
+                ctx.stroke()
+            }
+        }
+
+
+        function stopDrawing(){
+            isDrawing = false
+        }
+
+
+
+        function handleChangeColor(){
+            const {value} = $colorPicker
+            ctx.strokeStyle = value
+        }
+
+        function clearCanvas(){
+            ctx.clearRect(0,0,canvas.width, canvas.height)
+        }
+        
+        
+        setMode(MODES.DRAW)
+
+
+        if (typeof window.EyeDropper != 'undefined') {
+            $pickerBtn.style.display = 'block'
+        }
+    </script>
+</head>
+<body>
+    <h1>
+        <img src="./icon.png" alt="Paint.js"/>
+        Paint.js
+    </h1>
+    <div id="container">
+        <header>
+            <button>File</button>
+            <button>View</button>
+            <button>Edit</button>
+            <button>Image</button>
+            <button>Options</button>
+            <button>Help</button>
+        </header>
+
+        <aside>
+            <nav>
+                <button  id="draw-btn" title="Pincel"> </button>
+                <button  id="erase-btn" title="Borrar"> </button>
+                <button  id="ellipse-btn" title="Elipse"> </button>
+                <button  id="rectangle-btn" title="Rectangulo"> </button>
+                <button  id="picker-btn" title="Seleccionar"> </button>
+                <button  id="clear-btn" title="Limpiar"> </button>
+
+            </nav>
+        </aside>
+        <main>
+            <canvas id="canvas" width="300" height="200">
+    
+            </canvas>
+        </main>
+    
+        <footer>
+            <input type="color" id="COLOR-PICKER">
+        </footer>
+    </div>
+</body>
+</html>
