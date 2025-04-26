@@ -1,4 +1,4 @@
-const API = 'AIzaSyBnBIg3uq95Q8tepU-FKBE4CdO-1YReAXU';
+const API = '<GEMINI API>';
 
 import {GoogleGenAI} from "@google/genai";
 import { readFile, writeFile } from 'fs/promises';
